@@ -5,6 +5,9 @@ import {
   evaluateWorkstation,
   EXPECTED_DIAGNOSIS_BY_WORKSTATION,
   OS_CATALOG,
+  SOFTWARE_CATALOG,
+  DIAGNOSIS_OPTIONS,
+  GUIDED_REMEDIATION,
 } from './data/auditScenario';
 import { OfficeAuditWorkbench } from './components/OfficeAuditWorkbench';
 import { ArchitectureLab } from './components/ArchitectureLab';
@@ -24,23 +27,43 @@ import { LicenseTooltip } from './components/LicenseTooltip';
 
 type ActiveTab = 'audit' | 'arch_lab' | 'catalog' | 'evaluation';
 
-const STORAGE_KEY = 'ufees_audit_simulator_v1';
+// v2: el escenario cambió (ownsWindowsProOem, catálogo corregido); un estado v1 no se reutiliza
+const STORAGE_KEY = 'ufees_audit_simulator_v2';
+
+/**
+ * Del estado guardado solo se recupera lo que cambia el alumno (SO, programas y diagnóstico),
+ * validado contra los catálogos; el hardware y el resto de datos salen siempre del escenario.
+ */
+function loadWorkstations(): Workstation[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return INITIAL_WORKSTATIONS;
+    const parsed: unknown = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return INITIAL_WORKSTATIONS;
+    return INITIAL_WORKSTATIONS.map((ws) => {
+      const s = parsed.find((x) => x && typeof x === 'object' && x.id === ws.id);
+      if (!s) return ws;
+      const osId = OS_CATALOG.some((o) => o.id === s.osId) ? s.osId : ws.osId;
+      const installedSoftwareIds = Array.isArray(s.installedSoftwareIds)
+        ? s.installedSoftwareIds.filter(
+            (id: unknown) => typeof id === 'string' && SOFTWARE_CATALOG.some((a) => a.id === id)
+          )
+        : ws.installedSoftwareIds;
+      const auditorDiagnosisId =
+        typeof s.auditorDiagnosisId === 'string' &&
+        DIAGNOSIS_OPTIONS.some((d) => d.id === s.auditorDiagnosisId)
+          ? s.auditorDiagnosisId
+          : null;
+      return { ...ws, osId, installedSoftwareIds, auditorDiagnosisId };
+    });
+  } catch {
+    // Almacenamiento bloqueado o JSON dañado
+    return INITIAL_WORKSTATIONS;
+  }
+}
 
 export default function App() {
-  const [workstations, setWorkstations] = useState<Workstation[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length === INITIAL_WORKSTATIONS.length) {
-          return parsed;
-        }
-      }
-    } catch {
-      // ignore storage errors
-    }
-    return INITIAL_WORKSTATIONS;
-  });
+  const [workstations, setWorkstations] = useState<Workstation[]>(loadWorkstations);
 
   const [selectedWsId, setSelectedWsId] = useState<string>('pc-01');
   const [activeTab, setActiveTab] = useState<ActiveTab>('audit');
@@ -135,57 +158,7 @@ export default function App() {
 
   // Guided optimal remediation for a single workstation
   const handleAutoRemediateWorkstation = (wsId: string) => {
-    const optimalConfigByWs: Record<
-      string,
-      { osId: string; softwareIds: string[] }
-    > = {
-      'pc-01': {
-        osId: 'ubuntu_2404_64_gpl',
-        softwareIds: [
-          'libreoffice_64_gpl',
-          'gnucash_kimai_64_gpl',
-          '7zip_64_gpl',
-          'pdfsam_64_gpl',
-        ],
-      },
-      'pc-02': {
-        osId: 'win11_pro_64_oem',
-        softwareIds: [
-          'gimp_inkscape_64_gpl',
-          'pdfsam_64_gpl',
-          '7zip_64_gpl',
-          'libreoffice_64_gpl',
-        ],
-      },
-      'pc-03': {
-        osId: 'debian_12_32_gpl',
-        softwareIds: ['libreoffice_32_gpl', '7zip_32_gpl', 'evince_32_gpl'],
-      },
-      'pc-04': {
-        osId: 'win11_pro_64_retail',
-        softwareIds: [
-          'libreoffice_64_gpl',
-          'pdfsam_64_gpl',
-          'rustdesk_64_gpl',
-          '7zip_64_gpl',
-        ],
-      },
-      'pc-05': {
-        osId: 'win11_pro_64_oem',
-        softwareIds: [
-          'libreoffice_64_gpl',
-          'rustdesk_64_gpl',
-          '7zip_64_gpl',
-          'pdfsam_64_gpl',
-        ],
-      },
-      'srv-01': {
-        osId: 'ubuntu_2404_64_gpl',
-        softwareIds: ['7zip_64_gpl', 'rustdesk_64_gpl'],
-      },
-    };
-
-    const target = optimalConfigByWs[wsId];
+    const target = GUIDED_REMEDIATION[wsId];
     if (!target) return;
 
     setWorkstations((prev) =>
@@ -318,7 +291,7 @@ export default function App() {
         }
 
         if (actionType === 'os_fix_all') {
-          if (ws.id === 'pc-01') return { ...ws, osId: 'ubuntu_2404_64_gpl' };
+          if (ws.id === 'pc-01') return { ...ws, osId: 'win11_pro_64_oem' };
           if (ws.id === 'pc-03') return { ...ws, osId: 'debian_12_32_gpl' };
           if (ws.id === 'pc-04') return { ...ws, osId: 'win11_pro_64_retail' };
           if (ws.id === 'srv-01') return { ...ws, osId: 'ubuntu_2404_64_gpl' };
@@ -331,8 +304,15 @@ export default function App() {
   };
 
   const handleResetScenario = () => {
+    if (!window.confirm('Se restaurará el escenario inicial y se perderán los cambios y diagnósticos de los 6 equipos. ¿Continuar?')) {
+      return;
+    }
     setWorkstations(INITIAL_WORKSTATIONS);
-    localStorage.removeItem(STORAGE_KEY);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Almacenamiento bloqueado
+    }
   };
 
   const logoSrc = `${import.meta.env.BASE_URL}assets/aistudio/icono_81a3db5b.png`;
@@ -340,19 +320,19 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       {/* Strict 3-Zone Top Bar Contract */}
-      <header className="flex items-center justify-between gap-8 px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <header className="flex items-center justify-between gap-4 lg:gap-8 px-4 sm:px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
         {/* Zone 1: Single text element wordmark */}
         <a
           href="https://www.unfantasmaenelsistema.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100 whitespace-nowrap shrink-0 hover:text-sky-700 dark:hover:text-sky-400 transition-colors"
+          className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100 truncate min-w-0 hover:text-sky-700 dark:hover:text-sky-400 transition-colors"
         >
           Un Fantasma en el Sistema
         </a>
 
         {/* Zone 2: 4 concise single-line navigation links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-400">
+        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-600 dark:text-slate-400">
           <button
             onClick={() => setActiveTab('audit')}
             className={`hover:text-slate-900 dark:hover:text-slate-100 transition-colors whitespace-nowrap shrink-0 py-1 ${
@@ -396,7 +376,7 @@ export default function App() {
         </nav>
 
         {/* Zone 3: 1 primary action */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="hidden sm:flex items-center gap-3 shrink-0">
           <button
             onClick={() => setActiveTab('evaluation')}
             className="px-4 py-2 text-xs font-medium text-white bg-slate-900 dark:bg-sky-600 rounded-lg hover:bg-slate-800 dark:hover:bg-sky-500 transition-colors whitespace-nowrap shrink-0"
@@ -491,7 +471,7 @@ export default function App() {
           </div>
 
           {/* Mobile Navigation Bar */}
-          <div className="flex md:hidden items-center gap-1.5 overflow-x-auto pt-4 mt-4 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex lg:hidden items-center gap-1.5 overflow-x-auto pt-4 mt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               onClick={() => setActiveTab('audit')}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap shrink-0 ${
@@ -593,10 +573,10 @@ export default function App() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Presupuesto Anual Licencias
+                  Coste de Licencias (1.er año)
                 </p>
                 <p className="text-xl font-bold font-mono tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
-                  {officeMetrics.totalCost} € / año
+                  {officeMetrics.totalCost} €
                 </p>
               </div>
               <Wallet className="w-5 h-5 text-sky-600 dark:text-sky-400" />

@@ -22,7 +22,7 @@ export const LICENSE_TOOLTIP_DATA: Record<LicenseType, LicenseTooltipInfo> = {
     commercialSummary: 'Válida en empresa solo en el equipo original.',
     hardwareBinding: 'Vinculada permanentemente a la 1ª placa base donde se activó.',
     legalRestrictions:
-      'Prohibido transferirla a otro PC o reutilizarla si se cambia la placa base por actualización. Solo incluye soporte del ensamblador.',
+      'Prohibido transferirla a otro PC o reutilizarla si se cambia la placa base por actualización (solo se admite la sustitución en garantía por el fabricante). Vale para 32 y 64 bits. Solo incluye soporte del ensamblador.',
   },
   Retail: {
     code: 'Retail',
@@ -42,12 +42,22 @@ export const LICENSE_TOOLTIP_DATA: Record<LicenseType, LicenseTooltipInfo> = {
     commercialSummary: 'Válida para flotas empresariales e instituciones.',
     hardwareBinding: 'Reasignable entre equipos de la misma organización.',
     legalRestrictions:
-      'Exige un mínimo contractual (habitualmente 5 licencias activas en la empresa). Prohibido vender o ceder claves VLK de forma individual fuera de la empresa.',
+      'Exige un mínimo contractual (habitualmente 5 licencias en programas como Open Value). En Windows de escritorio es una licencia de actualización: el equipo necesita antes una licencia Pro. Prohibido vender o ceder claves VLK fuera de la empresa.',
+  },
+  Suscripcion: {
+    code: 'Suscripcion',
+    shortName: 'Suscripción',
+    fullName: 'Licencia por suscripción (pago mensual o anual)',
+    commercialAllowed: true,
+    commercialSummary: 'Válida en empresa mientras la suscripción esté al día.',
+    hardwareBinding: 'Ligada al usuario o a la cuenta, no a la placa base.',
+    legalRestrictions:
+      'Si se deja de pagar, el programa pasa a modo de solo lectura o deja de funcionar. Es un gasto recurrente que hay que justificar frente a alternativas libres.',
   },
   GNU_GPL: {
     code: 'GNU_GPL',
-    shortName: 'GNU/GPL',
-    fullName: 'GNU General Public License / LGPL / MPL (Software Libre)',
+    shortName: 'Libre (GPL/LGPL/MPL)',
+    fullName: 'Software libre: GNU GPL, LGPL, AGPL, MPL y afines',
     commercialAllowed: true,
     commercialSummary: '100% legal en empresas sin límite de puestos ni coste (0 €).',
     hardwareBinding: 'Sin restricción de hardware, CPU ni número de instalaciones.',

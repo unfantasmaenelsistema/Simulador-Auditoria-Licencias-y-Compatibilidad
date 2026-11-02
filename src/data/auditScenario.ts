@@ -8,6 +8,7 @@ export type LicenseType =
   | 'Freeware_Personal'
   | 'Trial_Expirado'
   | 'Hogar_Estudiantes'
+  | 'Suscripcion'
   | 'Crack_Ilegal';
 
 export type SoftwareCategory =
@@ -29,6 +30,8 @@ export interface OsOption {
   minRamGb: number;
   maxAddressableRamGb: number;
   boundToOriginalBoardOnly: boolean;
+  /** Fecha de fin de soporte del fabricante si ya ha pasado (sin parches de seguridad). */
+  endOfSupport?: string;
   description: string;
 }
 
@@ -44,6 +47,8 @@ export interface SoftwareCatalogItem {
   commercialAllowed: boolean;
   isOpenSource: boolean;
   ramFootprintMb: number;
+  /** Fecha de fin de soporte del fabricante si ya ha pasado (sin parches de seguridad). */
+  endOfSupport?: string;
   description: string;
   recommendedAlternativeId?: string;
 }
@@ -71,6 +76,12 @@ export interface Workstation {
   osId: string;
   osLicenseSerial: string;
   osOriginMotherboardSerial: string; // Matches originalOemBoardSerial or current board
+  /**
+   * El equipo trae de fábrica una licencia OEM de Windows Pro en su placa actual. Esa licencia
+   * vale para 32 y 64 bits y para la actualización gratuita a Windows 11 Pro, así que
+   * reinstalar Windows Pro de 64 bits no cuesta nada.
+   */
+  ownsWindowsProOem: boolean;
   installedSoftwareIds: string[];
   requiredCategories: SoftwareCategory[];
   needsHighMemoryApp64Bit?: boolean; // e.g. Diseño o Contabilidad pesada
@@ -141,11 +152,12 @@ export const OS_CATALOG: OsOption[] = [
     family: 'Windows',
     arch: '32-bit',
     licenseType: 'OEM',
-    costPerSeat: 0, // Already preinstalled on original board
+    costPerSeat: 115, // 0 si el equipo ya trae su licencia OEM (ver ownsWindowsProOem)
     minRamGb: 1,
     maxAddressableRamGb: 3.2,
     boundToOriginalBoardOnly: true,
-    description: 'Preinstalado de fábrica. Límite de direccionamiento de memoria de 2³² bytes (4 GB teóricos, ~3,2 GB útiles). Vinculado a la placa base original.',
+    endOfSupport: '14/10/2025',
+    description: 'Preinstalado de fábrica. Límite de direccionamiento de memoria de 2³² bytes (4 GB teóricos, ~3,2 GB útiles). Vinculado a la placa base original. La licencia de Windows 10 Pro vale igual para 32 y 64 bits: pasar a 64 bits no exige comprar otra. Sin soporte de seguridad desde el 14/10/2025.',
   },
   {
     id: 'win11_pro_64_oem',
@@ -157,7 +169,7 @@ export const OS_CATALOG: OsOption[] = [
     minRamGb: 4,
     maxAddressableRamGb: 2048,
     boundToOriginalBoardOnly: true,
-    description: 'Licencia para ensambladores de equipos nuevos. No puede transferirse a otra placa base si el equipo original se desecha.',
+    description: 'Licencia OEM del propio equipo. Si el PC vino con Windows 10/11 Pro OEM, instalar Windows 11 Pro de 64 bits es gratis (misma licencia digital). No puede transferirse a otra placa base ni a otro PC.',
   },
   {
     id: 'win11_pro_64_retail',
@@ -181,7 +193,7 @@ export const OS_CATALOG: OsOption[] = [
     minRamGb: 4,
     maxAddressableRamGb: 2048,
     boundToOriginalBoardOnly: false,
-    description: 'Contrato por Volumen corporativo (requiere mínimo 5 puestos con licencia por volumen en la organización o acuerdo CSP/Open Value).',
+    description: 'Licencia de actualización por Volumen: exige que el equipo tenga ya una licencia Windows Pro de base y un acuerdo corporativo (Open Value con mínimo habitual de 5 licencias, o suscripción CSP). Es un SO de escritorio: no sustituye a Windows Server.',
   },
   {
     id: 'ubuntu_2404_64_gpl',
@@ -205,7 +217,7 @@ export const OS_CATALOG: OsOption[] = [
     minRamGb: 1,
     maxAddressableRamGb: 3.5,
     boundToOriginalBoardOnly: false,
-    description: 'Sistema ligero de 32 bits ideal para rescatar hardware x86 de 32 bits antiguo (Intel Atom / Pentium M). Licencia libre GNU/GPL.',
+    description: 'Sistema ligero de 32 bits para rescatar hardware x86 antiguo (Intel Atom, Pentium M). Es la última versión de Debian con instalador i386 (Debian 13 ya no lo ofrece) y tiene soporte LTS hasta junio de 2028. Licencia libre.',
   },
 ];
 
@@ -227,8 +239,8 @@ export const SOFTWARE_CATALOG: SoftwareCatalogItem[] = [
   },
   {
     id: 'libreoffice_32_gpl',
-    name: 'LibreOffice 24.2 (32 bits / x86)',
-    version: '24.2.6 i386',
+    name: 'LibreOffice 7.4 (paquete i386 de Debian 12)',
+    version: '7.4.7 i386',
     category: 'ofimatica',
     categoryLabel: 'Suite Ofimática',
     arch: '32-bit',
@@ -237,7 +249,7 @@ export const SOFTWARE_CATALOG: SoftwareCatalogItem[] = [
     commercialAllowed: true,
     isOpenSource: true,
     ramFootprintMb: 190,
-    description: 'Compilación de 32 bits para procesadores x86 antiguos o sistemas de 32 bits. Uso empresarial libre.',
+    description: 'The Document Foundation ya no publica LibreOffice de 32 bits para Linux; en un sistema i386 se usa el paquete de la distribución (Debian 12 incluye la 7.4 con parches de seguridad). Uso empresarial libre.',
   },
   {
     id: 'msoffice_home_64',
@@ -251,7 +263,8 @@ export const SOFTWARE_CATALOG: SoftwareCatalogItem[] = [
     commercialAllowed: false,
     isOpenSource: false,
     ramFootprintMb: 420,
-    description: '¡PROHIBIDO EN EMPRESAS! El contrato EULA de la edición Hogar y Estudiantes prohíbe expresamente cualquier actividad comercial o con ánimo de lucro.',
+    endOfSupport: '13/10/2026',
+    description: '¡PROHIBIDO EN EMPRESAS! El contrato EULA de la edición Hogar y Estudiantes prohíbe expresamente cualquier actividad comercial o con ánimo de lucro. Además, Office 2021 dejó de recibir soporte el 13/10/2026.',
     recommendedAlternativeId: 'libreoffice_64_gpl',
   },
   {
@@ -280,7 +293,8 @@ export const SOFTWARE_CATALOG: SoftwareCatalogItem[] = [
     commercialAllowed: true,
     isOpenSource: false,
     ramFootprintMb: 380,
-    description: 'Versión de 32 bits. En hojas de cálculo financieras gigantes (>2 GB) en equipos de 64 bits limita el direccionamiento de memoria del proceso.',
+    endOfSupport: '14/10/2025',
+    description: 'Versión de 32 bits. Sin soporte de seguridad desde el 14/10/2025. En hojas de cálculo financieras gigantes (>2 GB) en equipos de 64 bits limita el direccionamiento de memoria del proceso.',
   },
 
   // COMPRESORES DE ARCHIVOS
@@ -359,8 +373,8 @@ export const SOFTWARE_CATALOG: SoftwareCatalogItem[] = [
   },
   {
     id: 'evince_32_gpl',
-    name: 'Evince / QPDFViewer (32 bits / x86)',
-    version: '45.0 i386',
+    name: 'Evince / qpdfview (32 bits / x86)',
+    version: '43.1 i386',
     category: 'pdf',
     categoryLabel: 'Gestión de PDF',
     arch: '32-bit',
@@ -373,7 +387,7 @@ export const SOFTWARE_CATALOG: SoftwareCatalogItem[] = [
   },
   {
     id: 'acrobat_pro_crack_64',
-    name: 'Adobe Acrobat Pro DC (Activador KMS/Crack Pirata)',
+    name: 'Adobe Acrobat Pro DC (parcheado con crack)',
     version: '2023 x64 Patched',
     category: 'pdf',
     categoryLabel: 'Gestión de PDF',
@@ -393,12 +407,12 @@ export const SOFTWARE_CATALOG: SoftwareCatalogItem[] = [
     category: 'pdf',
     categoryLabel: 'Gestión de PDF',
     arch: '64-bit',
-    licenseType: 'Retail',
+    licenseType: 'Suscripcion',
     costPerSeat: 180,
     commercialAllowed: true,
     isOpenSource: false,
     ramFootprintMb: 480,
-    description: 'Licencia comercial oficial. Legal pero costosa si solo se necesita unir, dividir o leer documentos PDF.',
+    description: 'Suscripción comercial oficial (pago anual por usuario). Legal pero costosa si solo se necesita unir, dividir o leer documentos PDF.',
   },
 
   // DISEÑO GRÁFICO E IMAGEN
@@ -428,7 +442,7 @@ export const SOFTWARE_CATALOG: SoftwareCatalogItem[] = [
     commercialAllowed: true,
     isOpenSource: true,
     ramFootprintMb: 600,
-    description: 'Aunque es legal (GNU/GPL), al ser de 32 bits se ejecuta bajo emulación WOW64 y no puede direccionar más de 2-4 GB por lienzo en estaciones de diseño.',
+    description: 'Aunque es legal (GNU/GPL), al ser de 32 bits se ejecuta mediante WOW64 y cada proceso queda limitado a 2 GB (4 GB si está compilado como LARGEADDRESSAWARE), por mucha RAM que tenga la estación.',
     recommendedAlternativeId: 'gimp_inkscape_64_gpl',
   },
   {
@@ -479,17 +493,17 @@ export const SOFTWARE_CATALOG: SoftwareCatalogItem[] = [
   },
   {
     id: 'anydesk_comercial_64',
-    name: 'AnyDesk Standard (Licencia Comercial)',
+    name: 'AnyDesk Standard (Suscripción Comercial)',
     version: '8.0 x64',
     category: 'remoto',
     categoryLabel: 'Soporte Remoto',
     arch: '64-bit',
-    licenseType: 'Retail',
+    licenseType: 'Suscripcion',
     costPerSeat: 178,
     commercialAllowed: true,
     isOpenSource: false,
     ramFootprintMb: 95,
-    description: 'Licencia comercial propietaria anual. Legal, pero supone un gasto recurrente frente a RustDesk (GNU AGPLv3).',
+    description: 'Suscripción comercial propietaria (pago anual). Legal, pero supone un gasto recurrente frente a RustDesk (GNU AGPLv3).',
   },
 
   // CONTABILIDAD / ERP
@@ -509,17 +523,17 @@ export const SOFTWARE_CATALOG: SoftwareCatalogItem[] = [
   },
   {
     id: 'erp_fiscal_64_retail',
-    name: ' ContaPyme Pro 64 bits — Licencia Anual Retail',
+    name: 'ContaGest Pro 64 bits (ficticio) — Suscripción Anual',
     version: '2025 x64',
     category: 'contabilidad',
     categoryLabel: 'Contabilidad y Facturación',
     arch: '64-bit',
-    licenseType: 'Retail',
+    licenseType: 'Suscripcion',
     costPerSeat: 190,
     commercialAllowed: true,
     isOpenSource: false,
     ramFootprintMb: 390,
-    description: 'Software contable comercial de 64 bits. Requiere sistema operativo de 64 bits para ejecutarse.',
+    description: 'Programa contable comercial (nombre ficticio) de 64 bits con suscripción anual. Requiere un sistema operativo de 64 bits. Es la herramienta de trabajo de la contable: cambiarla no es decisión del técnico de sistemas.',
   },
 ];
 
@@ -545,11 +559,12 @@ export const INITIAL_WORKSTATIONS: Workstation[] = [
     osId: 'win10_pro_32_oem',
     osLicenseSerial: 'OEM-W10P32-00491-AA82',
     osOriginMotherboardSerial: 'MB-ASUS-H410-8821',
+    ownsWindowsProOem: true,
     installedSoftwareIds: ['msoffice_pro_retail_32', 'erp_fiscal_64_retail', 'winrar_trial_64', 'pdfsam_64_gpl'],
     requiredCategories: ['ofimatica', 'contabilidad', 'compresor', 'pdf'],
     needsHighMemoryApp64Bit: true,
     auditorDiagnosisId: null,
-    notes: 'La usuaria reporta que el sistema solo reconoce 3,2 GB de sus 8 GB de RAM instalados y que el módulo contable ContaPyme de 64 bits arroja error de arquitectura al iniciar.',
+    notes: 'La usuaria reporta que el sistema solo reconoce 3,2 GB de sus 8 GB de RAM instalados y que el programa contable ContaGest de 64 bits da error de arquitectura al iniciar.',
   },
   {
     id: 'pc-02',
@@ -572,6 +587,7 @@ export const INITIAL_WORKSTATIONS: Workstation[] = [
     osId: 'win11_pro_64_oem',
     osLicenseSerial: 'OEM-W11P64-99201-BB10',
     osOriginMotherboardSerial: 'MB-MSI-B550-4410',
+    ownsWindowsProOem: true,
     installedSoftwareIds: ['gimp_32_gpl', 'photoshop_crack_64', 'acrobat_pro_crack_64', 'winrar_trial_64', 'libreoffice_64_gpl'],
     requiredCategories: ['diseno', 'pdf', 'compresor', 'ofimatica'],
     needsHighMemoryApp64Bit: true,
@@ -599,6 +615,7 @@ export const INITIAL_WORKSTATIONS: Workstation[] = [
     osId: 'ubuntu_2404_64_gpl',
     osLicenseSerial: 'GPL-UBUNTU-AMD64-FREE',
     osOriginMotherboardSerial: 'MB-INTEL-945GSE-102',
+    ownsWindowsProOem: false,
     installedSoftwareIds: ['libreoffice_64_gpl', '7zip_64_gpl', 'pdfsam_64_gpl'],
     requiredCategories: ['ofimatica', 'compresor', 'pdf'],
     needsHighMemoryApp64Bit: false,
@@ -626,6 +643,7 @@ export const INITIAL_WORKSTATIONS: Workstation[] = [
     osId: 'win11_pro_64_oem',
     osLicenseSerial: 'OEM-DELL-2018-TRANSFERRED',
     osOriginMotherboardSerial: 'MB-DELL-OPTIPLEX-OLD2018',
+    ownsWindowsProOem: false,
     installedSoftwareIds: ['msoffice_home_64', 'acrobat_std_retail_64', 'anydesk_comercial_64', 'winrar_comercial_64'],
     requiredCategories: ['ofimatica', 'pdf', 'remoto', 'compresor'],
     needsHighMemoryApp64Bit: false,
@@ -653,6 +671,7 @@ export const INITIAL_WORKSTATIONS: Workstation[] = [
     osId: 'win11_pro_64_oem',
     osLicenseSerial: 'OEM-W11P64-77310-CC04',
     osOriginMotherboardSerial: 'MB-ASROCK-B450-7731',
+    ownsWindowsProOem: true,
     installedSoftwareIds: ['msoffice_home_64', 'teamviewer_free_64', 'winrar_trial_64', 'pdfsam_64_gpl'],
     requiredCategories: ['ofimatica', 'remoto', 'compresor', 'pdf'],
     needsHighMemoryApp64Bit: false,
@@ -680,11 +699,12 @@ export const INITIAL_WORKSTATIONS: Workstation[] = [
     osId: 'win11_ent_64_vol',
     osLicenseSerial: 'VLK-MAK-1OF5-9901',
     osOriginMotherboardSerial: 'MB-SUPERMICRO-X12-001',
+    ownsWindowsProOem: false,
     installedSoftwareIds: ['msoffice_ltsc_vol_64', 'acrobat_std_retail_64', 'anydesk_comercial_64', 'winrar_comercial_64', '7zip_64_gpl'],
     requiredCategories: ['compresor', 'remoto'],
     needsHighMemoryApp64Bit: false,
     auditorDiagnosisId: null,
-    notes: 'Tiene contratada 1 sola licencia por Volumen (cuando los contratos por Volumen exigen mínimo 5 licencias en la empresa o migrar a GNU/Linux libre) y tiene instaladas suites ofimáticas y PDF de pago innecesarias en un servidor de archivos.',
+    notes: 'Tiene contratada 1 sola licencia por Volumen (cuando los contratos por Volumen exigen mínimo 5 licencias en la empresa) sobre una placa de servidor que no trae licencia Windows Pro de base, usa un Windows de escritorio como servidor de archivos (máximo 20 conexiones entrantes) y tiene instaladas suites ofimáticas y PDF de pago innecesarias.',
   },
 ];
 
@@ -695,6 +715,56 @@ export const EXPECTED_DIAGNOSIS_BY_WORKSTATION: Record<string, string> = {
   'pc-04': 'lic_oem_transferred',
   'pc-05': 'lic_home_and_freeware_commercial',
   'srv-01': 'lic_volume_underlicensed_and_redundancy',
+};
+
+/** Configuración corregida de referencia de cada puesto (botón «Aplicar solución guiada»). */
+export const GUIDED_REMEDIATION: Record<string, { osId: string; softwareIds: string[] }> = {
+  // La licencia OEM Pro del equipo vale para Windows 11 Pro de 64 bits sin coste,
+  // y el programa contable es la herramienta de la usuaria: se conserva
+  'pc-01': {
+    osId: 'win11_pro_64_oem',
+    softwareIds: [
+      'libreoffice_64_gpl',
+      'erp_fiscal_64_retail',
+      '7zip_64_gpl',
+      'pdfsam_64_gpl',
+    ],
+  },
+  'pc-02': {
+    osId: 'win11_pro_64_oem',
+    softwareIds: [
+      'gimp_inkscape_64_gpl',
+      'pdfsam_64_gpl',
+      '7zip_64_gpl',
+      'libreoffice_64_gpl',
+    ],
+  },
+  'pc-03': {
+    osId: 'debian_12_32_gpl',
+    softwareIds: ['libreoffice_32_gpl', '7zip_32_gpl', 'evince_32_gpl'],
+  },
+  'pc-04': {
+    osId: 'win11_pro_64_retail',
+    softwareIds: [
+      'libreoffice_64_gpl',
+      'pdfsam_64_gpl',
+      'rustdesk_64_gpl',
+      '7zip_64_gpl',
+    ],
+  },
+  'pc-05': {
+    osId: 'win11_pro_64_oem',
+    softwareIds: [
+      'libreoffice_64_gpl',
+      'rustdesk_64_gpl',
+      '7zip_64_gpl',
+      'pdfsam_64_gpl',
+    ],
+  },
+  'srv-01': {
+    osId: 'ubuntu_2404_64_gpl',
+    softwareIds: ['7zip_64_gpl', 'rustdesk_64_gpl'],
+  },
 };
 
 export const CATEGORY_LABELS: Record<SoftwareCategory, string> = {
@@ -748,7 +818,8 @@ export function evaluateWorkstation(
     });
   } else if (os.arch === '32-bit') {
     usableRamGb = Math.min(ws.hardware.ramInstalledGb, os.maxAddressableRamGb);
-    if (ws.hardware.ramInstalledGb > 4) {
+    // Con 4 GB justos ya se pierden ~0,8 GB por el hueco de MMIO bajo los 4 GB
+    if (ws.hardware.ramInstalledGb > os.maxAddressableRamGb) {
       isArchValid = false;
       const wasted = +(ws.hardware.ramInstalledGb - usableRamGb).toFixed(1);
       findings.push({
@@ -806,7 +877,31 @@ export function evaluateWorkstation(
       domain: 'licencia',
       title: 'Licencia OEM inválida: Transferida desde otra placa base',
       technicalDetail: `La clave OEM estaba vinculada a la placa "${ws.hardware.originalOemBoardSerial}" y no es transferible a la placa nueva "${ws.hardware.motherboardSerial}".`,
-      didacticRule: 'Las licencias OEM mueren con la placa base del equipo original donde se preinstalaron. Para poder transferir la licencia a un PC nuevo se requiere una licencia Retail (FPP), por Volumen o migrar a GNU/GPL.',
+      didacticRule: 'Las licencias OEM mueren con la placa base del equipo original donde se preinstalaron (salvo sustitución en garantía por el fabricante). Para el PC nuevo hace falta una licencia Retail (FPP) transferible, una licencia nueva para ese equipo o migrar a software libre. Una licencia por Volumen de Windows no sirve sola: es de actualización.',
+    });
+  }
+
+  if (os.family === 'Windows' && os.licenseType === 'Volumen' && !ws.ownsWindowsProOem) {
+    isLicenseValid = false;
+    findings.push({
+      id: `${ws.id}-os-vol-no-base`,
+      severity: 'critical',
+      domain: 'licencia',
+      title: 'Licencia por Volumen de Windows sin licencia base',
+      technicalDetail: `${os.name} es una licencia de actualización y este equipo no tiene ninguna licencia Windows Pro de base.`,
+      didacticRule: 'Las licencias por Volumen de Windows para escritorio solo actualizan una licencia previa que cumpla los requisitos (Windows Pro). Sin ella el equipo no está licenciado.',
+    });
+  }
+
+  if (ws.floorZone === 'servidor' && os.family === 'Windows') {
+    isLicenseValid = false;
+    findings.push({
+      id: `${ws.id}-desktop-os-as-server`,
+      severity: 'warning',
+      domain: 'licencia',
+      title: 'Sistema operativo de escritorio usado como servidor',
+      technicalDetail: `${os.name} limita a 20 los dispositivos que pueden conectarse a la vez para compartir archivos o impresoras.`,
+      didacticRule: 'Un servidor de archivos de oficina necesita Windows Server con sus CAL o un servidor Linux con Samba (libre), no una licencia de escritorio.',
     });
   }
 
@@ -818,7 +913,7 @@ export function evaluateWorkstation(
       domain: 'licencia',
       title: `Contrato por Volumen (VLK) incompleto (${totalVolumeSeatsInCompany}/5 licencias activas)`,
       technicalDetail: `Se ha asignado ${os.name} pero la oficina solo suma ${totalVolumeSeatsInCompany} licencias por volumen (el mínimo habitual de un acuerdo VLK/Open es de 5 licencias elegibles).`,
-      didacticRule: 'Las licencias por Volumen son rentables y válidas cuando se estandarizan al menos 5 activos bajo el mismo contrato corporativo; para puestos aislados usa Retail, OEM nuevo o GNU/GPL.',
+      didacticRule: 'Las licencias por Volumen son rentables y válidas cuando se estandarizan al menos 5 activos bajo el mismo contrato corporativo; para puestos aislados usa Retail, una licencia OEM nueva o software libre.',
     });
   }
 
@@ -877,6 +972,23 @@ export function evaluateWorkstation(
     }
   }
 
+  // Software o SO sin soporte del fabricante: sin parches de seguridad
+  const unsupported = [
+    ...(os.endOfSupport ? [{ name: os.name, date: os.endOfSupport }] : []),
+    ...installedApps.filter((a) => a.endOfSupport).map((a) => ({ name: a.name, date: a.endOfSupport! })),
+  ];
+  if (unsupported.length > 0) {
+    isCatalogOptimized = false;
+    findings.push({
+      id: `${ws.id}-end-of-support`,
+      severity: 'warning',
+      domain: 'catalogo',
+      title: `Software sin soporte del fabricante: ${unsupported.map((u) => u.name).join(', ')}`,
+      technicalDetail: unsupported.map((u) => `${u.name}: sin parches desde el ${u.date}.`).join(' '),
+      didacticRule: 'Un programa fuera de soporte no recibe parches de seguridad. En una auditoría se señala aunque la licencia sea legal y debe planificarse su sustitución.',
+    });
+  }
+
   // Redundant duplicate apps in the same category
   const categoryCounts: Record<string, SoftwareCatalogItem[]> = {};
   for (const app of installedApps) {
@@ -931,11 +1043,10 @@ export function evaluateWorkstation(
     });
   }
 
+  // La licencia OEM Pro que trae el equipo cubre 32/64 bits y la actualización a Windows 11 Pro
   const osCost =
-    os.id === 'win11_pro_64_oem' &&
-    ws.hardware.motherboardSerial === ws.hardware.originalOemBoardSerial &&
-    (ws.id === 'pc-02' || ws.id === 'pc-05')
-      ? 0 // Already paid with original PC
+    os.family === 'Windows' && os.licenseType === 'OEM' && ws.ownsWindowsProOem
+      ? 0
       : os.costPerSeat;
 
   const appsCost = installedApps.reduce((sum, app) => sum + app.costPerSeat, 0);

@@ -56,7 +56,17 @@ const LICENSE_REFERENCE_MATRIX: LicenseReferenceRow[] = [
     hardwareTransfer: 'SÍ reasignable dentro de la organización',
     sourceCodeAccess: 'Cerrado (Propietario)',
     typicalCost: '140 € – 220 € / puesto (mín. 5 licencias)',
-    auditKeyRule: 'Exige alcanzar el mínimo contractual (habitualmente 5 licencias en la empresa) y mantener el registro de puestos activos.',
+    auditKeyRule: 'Exige alcanzar el mínimo contractual (habitualmente 5 licencias en la empresa) y mantener el registro de puestos activos. En Windows de escritorio solo actualiza una licencia Pro previa.',
+  },
+  {
+    type: 'Suscripción (Adobe, AnyDesk, Microsoft 365…)',
+    code: 'Suscripción',
+    licenseTypeKey: 'Suscripcion',
+    commercialValid: 'Sí (mientras se pague)',
+    hardwareTransfer: 'Ligada al usuario o a la cuenta',
+    sourceCodeAccess: 'Cerrado (Propietario)',
+    typicalCost: 'Pago mensual o anual por usuario',
+    auditKeyRule: 'Comprueba que el número de usuarios activos coincide con el de suscripciones pagadas; si se deja de pagar, el programa deja de estar licenciado.',
   },
   {
     type: 'GNU/GPL, LGPL, AGPL, MPL (Software Libre)',
@@ -282,7 +292,7 @@ export const LicenseCatalogOptimizer: React.FC<LicenseCatalogOptimizerProps> = (
                 Corregir SO en PC-01, PC-03, PC-04 y SRV-01
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">
-                Pasa PC-01 a 64 bits para desbloquear sus 8 GB RAM, instala Debian 12 (32 bits) en el Atom x86 de PC-03, regulariza la licencia OEM transferida en PC-04 y pasa SRV-01 a Linux LTS.
+                Reinstala PC-01 en 64 bits con su misma licencia OEM (sin coste) para desbloquear sus 8 GB de RAM, instala Debian 12 (32 bits) en el Atom x86 de PC-03, regulariza la licencia OEM transferida en PC-04 y pasa SRV-01 a Linux LTS.
               </p>
             </div>
             <button

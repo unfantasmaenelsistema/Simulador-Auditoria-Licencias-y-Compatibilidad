@@ -54,13 +54,13 @@ const QUIZ_QUESTIONS: QuizQuestion[] = [
       'Se avería la placa base de un PC Dell que venía con licencia Windows 11 Pro OEM preinstalada de fábrica. Compramos un PC clónico nuevo con placa base distinta. ¿Podemos transferir legalmente esa licencia OEM al PC nuevo?',
     options: [
       'Sí, siempre que desinstalemos el disco duro del equipo viejo.',
-      'No; las licencias OEM están vinculadas de forma permanente al primer equipo/placa base donde se activaron. Para transferir de equipo se necesita una licencia Retail (FPP) o por Volumen.',
+      'No; las licencias OEM están vinculadas de forma permanente al primer equipo/placa base donde se activaron. El PC nuevo necesita su propia licencia (por ejemplo, una Retail transferible).',
       'Sí, las licencias OEM permiten hasta 3 cambios de ordenador.',
       'Solo si el nuevo procesador tiene la misma arquitectura de 64 bits.',
     ],
     correctIndex: 1,
     explanation:
-      'El contrato OEM (Original Equipment Manufacturer) vincula la licencia de forma indisoluble a la placa base del equipo con el que se comercializó. Solo las licencias Retail (FPP) o por Volumen permiten migrar la licencia a un PC distinto.',
+      'El contrato OEM (Original Equipment Manufacturer) vincula la licencia a la placa base del equipo con el que se comercializó; solo se admite su sustitución en garantía por el fabricante. Las licencias Retail (FPP) sí se pueden migrar a otro PC. Las de Volumen de Windows no sirven solas: son actualizaciones de una licencia Pro previa.',
   },
   {
     id: 'q3',
@@ -141,7 +141,7 @@ export const AuditEvaluationView: React.FC<AuditEvaluationViewProps> = ({
       `Puntuación Práctica en Equipos (70%): ${avgAuditScore}/100`,
       `Cuestionario Normativo y Técnico (30%): ${quizScorePct}/100 (${quizCorrectCount}/${QUIZ_QUESTIONS.length} aciertos)`,
       `NOTA GLOBAL DE LA AUDITORÍA: ${globalFinalGrade}/100`,
-      `Coste Anual Resultante en Licencias: ${totalCost} € (Presupuesto máximo: 800 €)`,
+      `Coste de Licencias (compras + 1.er año de suscripciones): ${totalCost} € (Presupuesto máximo: 800 €)`,
       '',
       'DETALLE POR ESTACIÓN DE TRABAJO / SERVIDOR:',
       '--------------------------------------------------------------------',
@@ -273,7 +273,7 @@ export const AuditEvaluationView: React.FC<AuditEvaluationViewProps> = ({
           </div>
           <div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Gasto Anual en Licencias
+              Coste de Licencias (1.er año)
             </p>
             <p className="text-2xl font-bold font-mono tabular-nums text-slate-900 dark:text-slate-100 mt-1">
               {totalCost} €

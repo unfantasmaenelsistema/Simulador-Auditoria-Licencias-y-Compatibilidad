@@ -27,7 +27,7 @@ export const ArchitectureLab: React.FC = () => {
     appExplanation = 'Error de ejecución (Bad Image / Formato de ejecutable inválido): Un sistema operativo de 32 bits no puede cargar binarios de 64 bits (x86_64).';
   } else if (appBits === 32 && appMemoryDemandGb > 2.0) {
     appStatus = 'err_oom_32bit_limit';
-    appExplanation = `Fallo Out of Memory (Límite por proceso de 32 bits): Aunque haya RAM en el equipo, un proceso de 32 bits solo puede direccionar entre 2 GB y 3 GB de espacio virtual propio (solicita ${appMemoryDemandGb.toFixed(1)} GB).`;
+    appExplanation = `Fallo Out of Memory (Límite por proceso de 32 bits): Aunque haya RAM en el equipo, un proceso de 32 bits dispone por defecto de 2 GB de espacio virtual propio (hasta 4 GB en un SO de 64 bits si el programa está marcado como LARGEADDRESSAWARE, 3 GB en uno de 32 bits con /3GB). Solicita ${appMemoryDemandGb.toFixed(1)} GB.`;
   } else if (appMemoryDemandGb > usableRamGb - 0.7) {
     appStatus = 'err_oom_physical';
     appExplanation = `Memoria insuficiente en el SO: Tras descontar ~0,7 GB del propio sistema operativo, solo quedan ${(Math.max(0, usableRamGb - 0.7)).toFixed(1)} GB libres y la aplicación solicita ${appMemoryDemandGb.toFixed(1)} GB.`;

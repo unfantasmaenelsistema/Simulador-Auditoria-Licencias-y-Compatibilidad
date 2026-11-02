@@ -16,6 +16,11 @@
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
   }
+
+  /* Números de serie y nombres largos sin espacios: sin esto desbordan en móvil */
+  p, li {
+    overflow-wrap: anywhere;
+  }
 }
 
 .tabular-nums {
