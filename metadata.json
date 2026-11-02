@@ -1,0 +1,6 @@
+{
+  "name": "Simulador de Auditoría de Licencias y Compatibilidad — Un Fantasma en el Sistema",
+  "description": "Simulador interactivo de auditoría informática para identificar incompatibilidades de arquitectura (32 vs. 64 bits), verificar licencias (OEM, Retail, Volumen, GNU/GPL) y optimizar el catálogo de software ofimático y utilidades.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
