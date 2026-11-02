@@ -1,169 +1,127 @@
-<div align="center">
-  <a href="https://www.unfantasmaenelsistema.com/" target="_blank">
-    <img src="./public/assets/aistudio/icono_81a3db5b.png" alt="Logo Un Fantasma en el Sistema" width="120" height="120" />
-  </a>
+<p align="center">
+  <a href="https://www.unfantasmaenelsistema.com"><img src="public/assets/aistudio/icono_81a3db5b.png" width="110" alt="Un fantasma en el sistema"></a>
+</p>
 
-  # Simulador de Auditoría de Licencias y Compatibilidad (32 vs. 64 bits)
+<h1 align="center">Simulador de Auditoría de Licencias y Compatibilidad</h1>
 
-  **Recurso educativo interactivo para Formación Profesional en Informática (SMR · ASIR · DAW · DAM)**  
-  Desarrollado para **[Un Fantasma en el Sistema](https://www.unfantasmaenelsistema.com/)**
+<p align="center">
+  <b>Audita los seis equipos de una oficina: arquitectura de 32 o 64 bits, licencias de software y catálogo de programas</b><br>
+  OEM, Retail, Volumen y suscripción · Software libre frente a freeware · Barrera de los 4 GB · WOW64 · Software sin soporte · Acta de auditoría
+</p>
 
-  [![React 19](https://img.shields.io/badge/React-19-0284c7?logo=react&logoColor=white)](https://react.dev/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-  [![Vite](https://img.shields.io/badge/Vite-8.x-646cff?logo=vite&logoColor=white)](https://vitejs.dev/)
-  [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4-06b6d4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-  [![GitHub Pages Ready](https://img.shields.io/badge/GitHub_Pages-Ready-059669?logo=github&logoColor=white)](#despliegue-automático-en-github-pages)
-</div>
+<p align="center">
+  <a href="https://unfantasmaenelsistema.github.io/Simulador-Auditoria-Licencias-y-Compatibilidad/"><b>▶ Abrir el simulador</b></a> ·
+  <a href="#qué-hace">Qué hace</a> ·
+  <a href="#los-6-equipos">Los 6 equipos</a> ·
+  <a href="#qué-modela-y-qué-no">Qué modela</a> ·
+  <a href="#desarrollo">Desarrollo</a> ·
+  <a href="https://www.unfantasmaenelsistema.com">unfantasmaenelsistema.com</a> ·
+  <a href="LICENSE">MIT</a>
+</p>
 
----
+<p align="center">
+  <img src="https://img.shields.io/badge/navegador-sin_servidor-10b981?style=flat-square" alt="Sin servidor">
+  <img src="https://img.shields.io/badge/datos-100%25_locales-0284c7?style=flat-square" alt="Datos 100 % locales">
+  <img src="https://img.shields.io/badge/equipos-6_+_5_preguntas-f59e0b?style=flat-square" alt="6 equipos y 5 preguntas">
+  <img src="https://img.shields.io/badge/licencia-MIT-blue?style=flat-square" alt="MIT">
+</p>
 
-## 📋 ¿Qué hace esta aplicación?
+<p align="center">
+  <img src="docs/capturas/01-auditoria-equipos.webp" width="900" alt="Auditoría del PC-04: licencia OEM de un Dell antiguo en una placa nueva, Office Hogar y Estudiantes en la empresa y utilidades de pago evitables">
+</p>
 
-El **Simulador de Auditoría de Licencias y Compatibilidad** plantea un escenario realista donde el alumnado asume el rol de auditor técnico y legal en una pequeña empresa (**Asesoría y Estudio Vértice S.L.**) con un inventario heterogéneo de **6 equipos informáticos** (5 estaciones de trabajo departamentales y 1 servidor local).
+La asesoría ficticia Vértice S.L. tiene seis equipos con problemas reales de inventario: un Windows de 32 bits que solo ve 3,2 GB de sus 8 GB, una imagen de 64 bits que no arranca en un Atom de 32 bits, una licencia OEM reutilizada de un PC desechado, Office Hogar y Estudiantes en la oficina, cracks y programas de prueba caducados. Cambias el sistema operativo y los programas de cada puesto, emites un diagnóstico y el motor evalúa en tiempo real arquitectura, licencias, catálogo y coste.
 
-### Mecánica didáctica principal
+> [!NOTE]
+> Es un escenario didáctico. Los precios son orientativos y las reglas de licencia están simplificadas (cada fabricante tiene su contrato). El programa contable «ContaGest» es ficticio.
 
-1. **Identificación de incompatibilidades de arquitectura (`32 bits / x86` vs. `64 bits / x86_64`)**:
-   - Detectar cuellos de botella de direccionamiento de memoria ($2^{32} \text{ bytes} = 4\text{ GB}$ teóricos / $\sim 3,2\text{ GB}$ útiles por reserva MMIO/PCIe) cuando se instala un Sistema Operativo de 32 bits sobre hardware de 64 bits con 8 GB o más de RAM.
-   - Comprender por qué una CPU física de 32 bits puros (`Intel Atom N270 i686`) no puede arrancar kernels ni ejecutar binarios de 64 bits (`x86_64`).
-   - Analizar la ejecución de aplicaciones de 32 bits en sistemas de 64 bits mediante el subsistema **WOW64** y su límite de 2–4 GB de memoria por proceso en estaciones de diseño gráfico.
-2. **Verificación legal de tipos de licencia (`OEM`, `Retail`, `Volumen`, `GNU/GPL`, `Hogar`, `Freeware`, `Shareware`)**:
-   - **Tooltips legales interactivos** integrados en toda la interfaz para consultar al instante las restricciones del contrato EULA sin salir de la pantalla.
-   - Detección de licencias **OEM** invalidadas por haberse transferido desde la placa base de un equipo antiguo desechado a un ordenador nuevo.
-   - Identificación de usos comerciales no permitidos (*Microsoft Office Hogar y Estudiantes*, *TeamViewer Free* de uso personal, *WinRAR* con evaluación expirada y *cracks* piratas).
-   - Validación de umbrales mínimos en contratos corporativos por **Volumen (VLK)** y despliegue legal de **Software Libre (`GNU/GPL`, `LGPL`, `AGPL`, `MPL`)** en entornos empresariales a coste $0\text{ €}$.
-3. **Optimización del catálogo de software ofimático y utilidades**:
-   - Homogeneización de herramientas por departamento (**Ofimática, Compresores, Gestión PDF, Diseño Gráfico, Soporte Remoto y Contabilidad/ERP**), eliminando duplicidades y software innecesario en servidores.
+## Qué hace
 
----
+- **Auditoría de equipos**: hardware de cada puesto (CPU, RAM, placa base y la pegatina OEM), selector de sistema operativo, programas instalados, hallazgos clasificados por gravedad con su regla didáctica, diagnóstico del auditor y solución guiada.
+- **Laboratorio de 32 frente a 64 bits**: combina CPU, sistema operativo, RAM y aplicación y comprueba qué arranca, cuánta memoria se aprovecha (con el hueco de MMIO bajo los 4 GB) y cuándo un proceso de 32 bits se queda sin memoria.
+- **Catálogo y licencias**: tabla comparativa de OEM, Retail, Volumen, suscripción, software libre, Hogar y Estudiantes y freeware, con acciones globales para estandarizar el catálogo con alternativas libres.
+- **Acta y evaluación**: nota de la remediación (70 %) y de un control de cinco preguntas (30 %), con acta descargable en texto.
+- El trabajo se guarda en el navegador y se puede reiniciar el escenario cuando se quiera.
 
-## 📸 Capturas de Pantalla de los Módulos
+<p align="center">
+  <img src="docs/capturas/02-laboratorio-32-64-bits.webp" width="700" alt="Laboratorio con CPU de 64 bits, sistema de 32 bits y 8 GB: 3,2 GB útiles, 0,8 GB de MMIO y 4 GB inaccesibles">
+</p>
 
-### 1. Plano de Puestos, Consola de Auditoría y Tooltips Legales Interactivos
-> Inspección individual de los 6 equipos de la oficina, telemetría de hardware, trazabilidad de número de serie de placa base OEM, hallazgos en vivo y tooltips explicativos sobre cada licencia.
+## Los 6 equipos
 
-![Módulo 1: Consola de Auditoría de Equipos y Tooltips](./public/docs/screenshots/01-auditoria-equipos.svg)
+| Equipo | Problema | Solución guiada |
+| :-- | :-- | :-- |
+| PC-01 · Contabilidad | Windows 10 Pro de 32 bits (sin soporte) en un i5 con 8 GB: solo 3,2 GB útiles y el programa contable de 64 bits no arranca | Windows 11 Pro de 64 bits con **la misma licencia OEM del equipo** (sin coste) y catálogo en 64 bits |
+| PC-02 · Diseño | GIMP de 32 bits en una estación de 32 GB y programas activados con crack | GIMP + Inkscape de 64 bits y utilidades libres |
+| PC-03 · Recepción | Ubuntu 24.04 de 64 bits en un Atom N270 de 32 bits: no arranca | Debian 12 i386, la última versión de Debian con instalador de 32 bits |
+| PC-04 · Dirección | Clave OEM de un Dell de 2018 en una placa nueva y Office Hogar y Estudiantes | Windows 11 Pro Retail y LibreOffice |
+| PC-05 · Administración | Office Hogar y Estudiantes, TeamViewer Free y WinRAR caducado | LibreOffice, RustDesk y 7-Zip |
+| SRV-01 · Servidor | Windows 11 Enterprise por Volumen sin licencia base, usado como servidor de archivos, con suites de oficina innecesarias | Ubuntu 24.04 LTS (libre, sin límite de conexiones) con solo lo necesario |
 
----
+Las pruebas automáticas aplican la solución guiada a los seis equipos y comprueban que todos quedan al 100 % y sin hallazgos, con un coste total de 375 € (el programa contable y la licencia Retail del PC-04).
 
-### 2. Laboratorio Interactivo 32 bits (`x86`) vs. 64 bits (`x86_64`)
-> Simulador conceptual en tiempo real para experimentar con la cadena **CPU → Kernel SO → Aplicación**, visualizar el mapa de memoria física frente a direccionable ($2^{32}$ vs $2^{64}$) y comprobar el comportamiento del subsistema **WOW64**.
+<p align="center">
+  <img src="docs/capturas/03-catalogo-y-licencias.webp" width="700" alt="Tabla comparativa de tipos de licencia y acciones globales de estandarización del catálogo">
+</p>
 
-![Módulo 2: Laboratorio Interactivo 32 vs 64 bits](./public/docs/screenshots/02-laboratorio-32-64-bits.svg)
+## Qué modela y qué no
 
----
+- **Una licencia de Windows vale para 32 y 64 bits.** Pasar de 32 a 64 bits es reinstalar con la misma licencia, y la licencia OEM de Windows Pro de un equipo admite la actualización gratuita a Windows 11 Pro.
+- **OEM** muere con la placa base original (salvo sustitución en garantía); **Retail** se puede trasladar a otro PC; **Volumen** para Windows de escritorio es una licencia de actualización que exige una licencia Pro previa y un acuerdo con un mínimo habitual de 5 licencias.
+- Un **Windows de escritorio** admite como máximo 20 conexiones entrantes para compartir archivos: no sustituye a un servidor.
+- El **software libre** (GPL, LGPL, AGPL, MPL) permite el uso comercial; el **freeware personal** (TeamViewer Free) y las ediciones **Hogar y Estudiantes** no. Una **suscripción** es legal mientras se pague.
+- Se señala el software **sin soporte del fabricante**: Windows 10 y Office 2019 desde el 14/10/2025, Office 2021 desde el 13/10/2026.
+- Un proceso de 32 bits dispone de 2 GB por defecto (hasta 4 GB en un sistema de 64 bits si es LARGEADDRESSAWARE).
+- No modela auditorías de fabricantes concretas, cuentas de usuarios de suscripción ni licencias de acceso de cliente (CAL).
 
-### 3. Optimizador del Catálogo Ofimático y Matriz Comparativa de Licencias
-> Despliegue de políticas de estandarización con alternativas libres **GNU/GPL** (*LibreOffice, 7-Zip, PDFsam Basic, Evince, GIMP, Inkscape, RustDesk*) y tabla técnica de referencia para auditorías.
+<p align="center">
+  <img src="docs/capturas/04-acta-y-evaluacion.webp" width="700" alt="Acta de auditoría con la nota de cada equipo, el coste de licencias y el control de cinco preguntas">
+</p>
 
-![Módulo 3: Optimizador de Catálogo y Matriz de Licencias](./public/docs/screenshots/03-optimizador-catalogo-licencias.svg)
+## Privacidad
 
----
+Todo se ejecuta en el navegador, sin servidor ni cuentas. El escenario y el diagnóstico se guardan en el almacenamiento local del navegador. Las fuentes van incluidas en la web y una política CSP estricta impide cargar código o estilos de terceros.
 
-### 4. Acta Final de Auditoría, Cuestionario de Examen y Exportación (`.TXT`)
-> Calificación ponderada en tiempo real (**70 % resolución práctica de los 6 equipos + 30 % cuestionario normativo de 5 preguntas de examen**) con exportación directa en `.TXT` o copiado al portapapeles para entregar en Moodle / Classroom.
+## Desarrollo
 
-![Módulo 4: Acta de Evaluación y Exportación de Informe](./public/docs/screenshots/04-acta-evaluacion-informe.svg)
+Requisitos: Node.js 20 o superior.
 
----
-
-## 🖥️ Guía del Escenario para el Docente (Los 6 Equipos de la Oficina)
-
-| Código | Puesto / Departamento | Hardware Instalado | Anomalía Inicial en el Escenario | Solución Óptima Esperada |
-| :--- | :--- | :--- | :--- | :--- |
-| **PC-01** | Contabilidad Principal *(Marta Gómez)* | Intel Core i5-10400 (`x86_64`) · **8 GB RAM DDR4** | Tiene **Windows 10 Pro 32 bits OEM** (desperdicia 4,8 GB de RAM, dejando solo 3,2 GB útiles) + ERP de 64 bits que no inicia + WinRAR expirado. | Migrar SO a **64 bits** (Ubuntu 24.04 LTS GNU/GPL o Windows 11 64-bit) y normalizar catálogo en 64 bits (LibreOffice, GnuCash/ContaPyme x64, 7-Zip, PDFsam). |
-| **PC-02** | Estación de Diseño y CAD *(Carlos Ruiz)* | AMD Ryzen 7 5800X (`x86_64`) · **32 GB RAM DDR4** | Usa **GIMP de 32 bits** (limitado a 2–4 GB por proceso bajo WOW64) + Suite de Diseño y Acrobat Pro activados con **cracks piratas**. | Desinstalar software pirata y versión de 32 bits; instalar **GIMP + Inkscape 64 bits nativo**, **PDFsam Basic x64** y **7-Zip x64** (todo GNU/GPL). |
-| **PC-03** | Terminal Ligero Recepción *(Elena Vargas)* | **Intel Atom N270 (`x86_32` puro)** · **2 GB RAM DDR2** | No arranca porque se le asignó **Ubuntu 24.04 de 64 bits (`amd64`)** y aplicaciones de 64 bits en una CPU física de 32 bits. | Instalar **Debian 12 LXQt (32 bits / `i386`)** + aplicaciones compiladas para **32 bits** (**LibreOffice x86**, **7-Zip x86**, **Evince x86**) bajo GNU/GPL. |
-| **PC-04** | Dirección General *(Roberto Solís)* | Intel Core i7-13700 (`x86_64`) · **16 GB RAM DDR5** | Placa base nueva (`Gigabyte Z790`) usando una **licencia OEM transferida** de un viejo PC Dell averiado en 2018 + **Office Hogar y Estudiantes**. | Adquirir licencia transferible **Windows 11 Pro Retail (FPP)** (o migrar a Linux GPL) y sustituir Office Hogar y utilidades de pago por **LibreOffice, PDFsam, RustDesk y 7-Zip**. |
-| **PC-05** | Administración *(Lucía Fernández)* | AMD Ryzen 5 5600G (`x86_64`) · **16 GB RAM DDR4** | SO Windows 11 OEM legítimo, pero utiliza **Office Hogar y Estudiantes**, **TeamViewer Free (solo uso personal)** y **WinRAR Trial vencido**. | Sustituir software no comercial por alternativas libres autorizadas en empresa: **LibreOffice x64**, **RustDesk x64** y **7-Zip x64**. |
-| **SRV-01** | Servidor Local / CPD *(Sistemas IT)* | Intel Xeon E-2336 (`x86_64`) · **32 GB RAM ECC** | Tiene 1 sola licencia por **Volumen (VLK)** sin llegar al mínimo corporativo de 5 puestos + suites ofimáticas y PDF innecesarias en un servidor. | Migrar el servidor a **Ubuntu 24.04 LTS (GNU/GPL)** y dejar únicamente las utilidades requeridas por el rol de servidor (**7-Zip x64** y **RustDesk x64**). |
-
----
-
-## 🚀 Instalación y Ejecución en Local
-
-1. **Clonar el repositorio**:
-   ```bash
-   git clone https://github.com/TU_USUARIO/simulador-auditoria-licencias.git
-   cd simulador-auditoria-licencias
-   ```
-
-2. **Instalar dependencias**:
-   ```bash
-   npm install
-   ```
-
-3. **Iniciar el servidor de desarrollo**:
-   ```bash
-   npm run dev
-   ```
-   La aplicación estará disponible en `http://localhost:3000`.
-
-4. **Compilar para producción**:
-   ```bash
-   npm run build
-   ```
-   Los archivos estáticos listos para servir se generan en la carpeta `./dist` con rutas relativas (`base: './'`).
-
----
-
-## 🌐 Despliegue Automático en GitHub Pages
-
-El proyecto ya incluye el flujo de trabajo oficial de GitHub Actions en [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml) y el archivo [`public/.nojekyll`](./public/.nojekyll).
-
-Para publicarlo gratis en **GitHub Pages** en menos de 1 minuto:
-
-1. Sube este código a un repositorio en tu cuenta de GitHub (rama `main`):
-   ```bash
-   git init
-   git add .
-   git commit -m "feat: simulador de auditoria de licencias y compatibilidad"
-   git branch -M main
-   git remote add origin https://github.com/TU_USUARIO/TU_REPOSITORIO.git
-   git push -u origin main
-   ```
-2. En tu repositorio de GitHub, entra en **Settings → Pages**.
-3. En la sección **Build and deployment → Source**, selecciona **GitHub Actions**.
-4. ¡Listo! El workflow `Desplegar en GitHub Pages` compilará automáticamente la aplicación con Vite y publicará la URL pública de tu simulador.
-
----
-
-## 📁 Estructura del Proyecto
-
-```text
-├── .github/
-│   └── workflows/
-│       └── deploy.yml                  # Despliegue automático en GitHub Pages
-├── public/
-│   ├── .nojekyll                       # Evita procesado Jekyll en GitHub Pages
-│   ├── assets/aistudio/
-│   │   └── icono_81a3db5b.png          # Logo oficial Un Fantasma en el Sistema
-│   └── docs/screenshots/               # Capturas vectoriales para el README
-│       ├── 01-auditoria-equipos.svg
-│       ├── 02-laboratorio-32-64-bits.svg
-│       ├── 03-optimizador-catalogo-licencias.svg
-│       └── 04-acta-evaluacion-informe.svg
-├── src/
-│   ├── components/
-│   │   ├── ArchitectureLab.tsx         # Simulador interactivo 32 vs 64 bits y RAM
-│   │   ├── AuditEvaluationView.tsx     # Acta final, test de examen y exportación TXT
-│   │   ├── LicenseCatalogOptimizer.tsx # Optimizador global y matriz comparativa
-│   │   ├── LicenseTooltip.tsx          # Tooltips legales EULA en toda la interfaz
-│   │   └── OfficeAuditWorkbench.tsx    # Plano de oficina e inspector de los 6 equipos
-│   ├── data/
-│   │   └── auditScenario.ts            # Catálogo de HW/SO/SW y motor de auditoría
-│   ├── App.tsx                         # Navegación principal, KPIs y persistencia
-│   ├── index.css                       # Estilos Tailwind CSS v4 y tipografía
-│   └── main.tsx                        # Punto de entrada React
-├── index.html
-├── package.json
-├── tsconfig.json
-└── vite.config.ts                      # Configurado con base: './' para GitHub Pages
+```bash
+git clone https://github.com/unfantasmaenelsistema/Simulador-Auditoria-Licencias-y-Compatibilidad.git
+cd Simulador-Auditoria-Licencias-y-Compatibilidad
+npm ci
+npm run dev      # http://localhost:3000
+npm test         # pruebas del motor de auditoría (Vitest)
+npm run lint     # comprobación de tipos
+npm run build    # versión estática en dist/
 ```
 
----
+El workflow `.github/workflows/deploy.yml` comprueba tipos, pasa las pruebas, compila y publica `dist/` en GitHub Pages en cada push a `main`.
 
-## 🔗 Autoría y Enlaces
+```text
+src/
+├── data/auditScenario.ts       # catálogo de SO y programas, los 6 equipos, solución guiada y motor de evaluación
+├── data/auditScenario.test.ts  # pruebas (Vitest)
+└── components/                 # auditoría, laboratorio 32/64 bits, catálogo, acta y fichas de licencia
+```
 
-- **Web oficial**: [https://www.unfantasmaenelsistema.com/](https://www.unfantasmaenelsistema.com/)
-- **Propósito**: Material didáctico abierto para prácticas de auditoría de software, licenciamiento y compatibilidad de arquitecturas de hardware/software.
+## Cambios
+
+### 2.0.0 (2026-11-02)
+
+- Publicado en la organización con despliegue en GitHub Pages: el workflow original no podía funcionar (`npm install` fallaba por un conflicto de versiones de `esbuild`).
+- **Licencias de Windows**: el simulador enseñaba que pasar el PC-01 de 32 a 64 bits obligaba a comprar otra licencia, y la solución guiada lo migraba a Ubuntu y le cambiaba el programa contable a la usuaria. Ahora reinstala Windows 11 Pro de 64 bits con su propia licencia OEM, sin coste, y conserva su programa. El coste del sistema operativo dependía de una excepción escrita a mano para dos equipos concretos.
+- **Volumen**: se presentaba como alternativa para trasladar una licencia a otro PC; en Windows de escritorio es una licencia de actualización. El servidor ahora avisa de que su Enterprise no tiene licencia base y de que un Windows de escritorio no sirve como servidor de archivos.
+- **Catálogo**: suscripciones (Adobe, AnyDesk, el programa contable) clasificadas como Retail; un «activador KMS» para Adobe (KMS es de Microsoft); LibreOffice 24.2 de 32 bits para Debian, que no existe (Debian 12 trae la 7.4); un programa contable con el nombre de un producto real, ahora ficticio. Nuevo aviso de software sin soporte (Windows 10, Office 2019 y 2021).
+- **Arquitectura**: el aviso de RAM no saltaba con 4 GB justos, aunque se pierden ~0,8 GB; el límite de memoria de un proceso de 32 bits en un sistema de 64 bits estaba mal explicado.
+- **Interfaz**: el indicador «Presupuesto anual» sumaba compras únicas y suscripciones; la cabecera desbordaba en móvil; un estado guardado dañado se cargaba sin validar y reiniciar no pedía confirmación. Fuentes incluidas en la web en lugar de Google Fonts, CSP estricta, capturas reales en lugar de dibujos SVG, fuera dependencias de Gemini y Express que no se usaban, y 15 pruebas automáticas.
+
+### 1.0.0
+
+- Versión inicial generada con Google AI Studio.
+
+## Créditos y licencia
+
+Creado por **[Un Fantasma en el Sistema](https://www.unfantasmaenelsistema.com)** para los módulos de sistemas operativos, implantación y seguridad informática de FP. Fuentes Plus Jakarta Sans y JetBrains Mono (SIL Open Font License) vía Fontsource; iconos de Lucide (ISC). Las marcas comerciales citadas pertenecen a sus propietarios.
+
+Código bajo licencia [MIT](LICENSE).
